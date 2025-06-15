@@ -1,0 +1,44 @@
+{
+    "name": "image-processing-web-app",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "jasmine": "jasmine",
+        "build": "npx tsc",
+        "prettier": "prettier . --write",
+        "test": "npm run build && npm run jasmine",
+        "dev": "nodemon src/index.ts",
+        "lint": "eslint"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "type": "commonjs",
+    "devDependencies": {
+        "@eslint/js": "^9.29.0",
+        "@types/cors": "^2.8.19",
+        "@types/express": "^5.0.3",
+        "@types/jasmine": "^5.1.8",
+        "@types/multer": "^1.4.13",
+        "@types/node": "^24.0.1",
+        "@types/sharp": "^0.31.1",
+        "@types/supertest": "^6.0.3",
+        "eslint": "^9.29.0",
+        "globals": "^16.2.0",
+        "nodemon": "^3.1.10",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.8.3",
+        "typescript-eslint": "^8.34.0"
+    },
+    "dependencies": {
+        "cors": "^2.8.5",
+        "express": "^5.1.0",
+        "jasmine": "^5.8.0",
+        "jasmine-spec-reporter": "^7.0.0",
+        "multer": "^2.0.1",
+        "prettier": "^3.5.3",
+        "sharp": "^0.34.2",
+        "supertest": "^7.1.1"
+    }
+}
