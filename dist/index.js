@@ -1,14 +1,13 @@
-'use strict';
-var __importDefault =
-    (this && this.__importDefault) ||
-    function (mod) {
-        return mod && mod.__esModule ? mod : { default: mod };
-    };
-Object.defineProperty(exports, '__esModule', { value: true });
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
 // Imports
-var express_1 = __importDefault(require('express'));
-var cors_1 = __importDefault(require('cors'));
-var upload_1 = __importDefault(require('./routes/upload'));
+var express_1 = __importDefault(require("express"));
+var cors_1 = __importDefault(require("cors"));
+var upload_1 = __importDefault(require("./routes/upload"));
+var resize_1 = __importDefault(require("./routes/resize"));
 // Initializing constants
 var app = (0, express_1.default)();
 var port = 3000;
@@ -25,8 +24,9 @@ app.post('/', function (req, res) {
 // Routers
 //   Upload Router
 app.use('/upload', upload_1.default);
+app.use('/resize', resize_1.default);
 // Starting server
 app.listen(port, function () {
-    console.log('Server running on port '.concat(port));
+    console.log("Server running on port ".concat(port));
 });
 exports.default = app;

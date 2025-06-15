@@ -42,16 +42,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var __1 = __importDefault(require("../../.."));
 var supertest_1 = __importDefault(require("supertest"));
 var requestApp = (0, supertest_1.default)(__1.default);
-describe('Testing the upload /upload endpoint', function () {
-    it('Expects to get an array of strings from GET /upload and for it to return 200 OK', function () { return __awaiter(void 0, void 0, void 0, function () {
-        var response;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, requestApp.get('/upload')];
+describe('Testing the resize /resize endpoint', function () {
+    it('GET /resize returns a 404', function () { return __awaiter(void 0, void 0, void 0, function () {
+        var _a;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    _a = expect;
+                    return [4 /*yield*/, requestApp.get('/resize')];
                 case 1:
-                    response = _a.sent();
-                    expect(response.status).toBe(200);
-                    expect(Array.isArray(response.body)).toBe(true);
+                    _a.apply(void 0, [(_b.sent()).status]).toEqual(404);
                     return [2 /*return*/];
             }
         });

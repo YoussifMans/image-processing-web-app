@@ -3,6 +3,7 @@ import express, { Response, Request } from 'express';
 import cors from 'cors';
 
 import uploadRouter from './routes/upload';
+import resizeRouter from './routes/resize';
 
 // Initializing constants
 const app = express();
@@ -24,6 +25,7 @@ app.post('/', (req: Request, res: Response) => {
 // Routers
 //   Upload Router
 app.use('/upload', uploadRouter);
+app.use('/resize', resizeRouter);
 
 // Starting server
 app.listen(port, () => {
