@@ -25,6 +25,7 @@ app.post('/', (req: Request, res: Response) => {
 // Routers
 //   Upload Router
 app.use('/upload', uploadRouter);
+//   Resize Router
 app.use('/resize', resizeRouter);
 
 // Starting server

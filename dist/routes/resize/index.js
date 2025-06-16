@@ -7,27 +7,35 @@ var express_1 = require("express");
 var sharp_1 = __importDefault(require("sharp"));
 var path_1 = __importDefault(require("path"));
 var fs_1 = require("fs");
-var multer_1 = __importDefault(require("multer"));
+var galleryPath = path_1.default.join(__dirname, '../../../public/gallery/uploaded/');
 var savePath = path_1.default.join(__dirname, '../../../public/gallery/resized/');
 function fileExists(filename) {
     return (0, fs_1.existsSync)(path_1.default.join(savePath, filename));
 }
 var resizeRouter = (0, express_1.Router)();
+resizeRouter.use((0, express_1.urlencoded)({ extended: true }));
 resizeRouter.get('/', function (req, res) {
     res.status(404).send('Cannot GET /resize. Please try another endpoint');
 });
-var upload = (0, multer_1.default)({ storage: multer_1.default.memoryStorage() });
-resizeRouter.post('/', upload.single('image'), function (req, res) {
-    var file = req.file;
-    if (!file) {
-        res.status(400).send('No file uploaded.');
+resizeRouter.post('/', function (req, res) {
+    var fileBuffer = (0, fs_1.readFileSync)(path_1.default.join(galleryPath, req.body.fileName)).buffer;
+    if (!req.body.fileName ||
+        !req.body.image ||
+        !req.body.width ||
+        !req.body.height) {
+        res.status(400).send('Missing Parameters');
+        return;
     }
-    if (fileExists(file.filename)) {
-        res.send(path_1.default.join("http://localhost:3000/gallery/resized/".concat(file.filename)));
+    if (fileExists(req.body.fileName)) {
+        res.status(400).send(path_1.default.join("http://localhost:3000/gallery/resized/".concat(req.body.fileName)));
+        return;
     }
-    (0, sharp_1.default)(file.buffer)
-        .resize(req.body.width, req.body.height)
-        .toFile(path_1.default.join(savePath, file.filename));
-    res.send(path_1.default.join("http://localhost:3000/gallery/resized/".concat(file.filename)));
+    (0, fs_1.writeFileSync)(path_1.default.join(savePath, req.body.fileName), '', 'utf8');
+    (0, sharp_1.default)(fileBuffer)
+        .resize(parseInt(req.body.width), parseInt(req.body.height))
+        .toFile(path_1.default.join(savePath, req.body.fileName));
+    console.log(req.body);
+    res.send(path_1.default.join(savePath, req.body.fileName));
+    return;
 });
 exports.default = resizeRouter;

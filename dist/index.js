@@ -24,6 +24,7 @@ app.post('/', function (req, res) {
 // Routers
 //   Upload Router
 app.use('/upload', upload_1.default);
+//   Resize Router
 app.use('/resize', resize_1.default);
 // Starting server
 app.listen(port, function () {

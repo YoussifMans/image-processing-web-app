@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Image Processing Web App</title>
+        <link rel="stylesheet" href="https://unpkg.com/98.css" />
+        <style>
+            @font-face {
+                font-family: 'Windows 98';
+                src: url('./system.ttf');
+            }
+            body {
+                background-color: #008080;
+                font-family: 'Windows 98';
+            }
+            .container {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+            h1 {
+                text-align: center;
+                font-size: 24pt;
+                line-height: 0;
+                padding: 0;
+                margin: 0;
+                margin-block: 20px;
+                margin-top: 40px;
+            }
+            .uploadForm {
+                display: flex;
+                justify-content: space-between;
+            }
+            img {
+                display: block;
+                margin: auto;
+                max-width: 100%;
+            }
+            input[type='text'] {
+                margin-inline: 5px;
+            }
+            .window-body {
+                display: flex;
+                flex-direction: column;
+            }
+            #gallery {
+                background: #fff;
+                box-shadow:
+                    inset -1px -1px #fff,
+                    inset 1px 1px grey,
+                    inset -2px -2px #dfdfdf,
+                    inset 2px 2px #0a0a0a;
+                display: block;
+                margin: 0;
+                margin-top: 10px;
+                padding: 6px;
+                flex-grow: 1;
+                display: grid;
+                grid-template-columns: repeat(auto-fill, 10%);
+                gap: 5px;
+
+                * {
+                    aspect-ratio: 1;
+                    border-radius: 10%;
+                }
+            }
+            h4 {
+                line-height: 40px;
+                margin: 0;
+                text-align: center;
+            }
+            .resizeForm {
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Image Processing Web App</h1>
+        <div class="container">
+            <div class="window">
+                <div class="title-bar">
+                    <div class="title-bar-text">Upload Image</div>
+                    <div class="title-bar-controls">
+                        <button aria-label="Minimize"></button>
+                        <button aria-label="Maximize"></button>
+                        <button aria-label="Close"></button>
+                    </div>
+                </div>
+                <div class="window-body">
+                    <fieldset>
+                        <legend>Upload Image</legend>
+                        <form
+                            action="http://localhost:3000/upload"
+                            method="post"
+                            enctype="multipart/form-data"
+                            class="uploadForm"
+                        >
+                            <input type="file" name="image" id="image" />
+                            <input type="submit" value="Submit" />
+                        </form>
+                    </fieldset>
+                    <div id="gallery"></div>
+                </div>
+            </div>
+            <div class="window">
+                <div class="title-bar">
+                    <div class="title-bar-text">Resize Image</div>
+                    <div class="title-bar-controls">
+                        <button aria-label="Minimize"></button>
+                        <button aria-label="Maximize"></button>
+                        <button aria-label="Close"></button>
+                    </div>
+                </div>
+                <div class="window-body">
+                    <fieldset>
+                        <legend>Resize Image</legend>
+                        <a href="" id="selectedImageLink" target="_blank">
+                            <img
+                                src="https://placehold.co/256"
+                                alt="Selected Image"
+                                id="selectedImage"
+                            /><br />
+                        </a>
+                        <form class="resizeForm">
+                            <input
+                                type="text"
+                                name="width"
+                                id="width"
+                                placeholder="Width"
+                            />
+                            x
+                            <input
+                                type="text"
+                                name="height"
+                                id="height"
+                                placeholder="Height"
+                            /><br /><br />
+                            <input type="submit" value="Submit" />
+                        </form>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            let selectedImage = '';
+            let selectedImageFileName = '';
+
+            fetch('http://localhost:3000/upload')
+                .then((response) => response.json())
+                .then((imagesArray) => {
+                    imagesArray.forEach((imageUrl) => {
+                        const image = document.createElement('img');
+                        image.src = `http://localhost:3000/gallery/uploaded/${imageUrl}`;
+                        image.style.cursor = 'pointer';
+                        image.addEventListener('click', () => {
+                            selectedImage = image.src;
+                            selectedImageFileName = imageUrl;
+                            console.log('Selected image:', selectedImage);
+                        });
+                        document.querySelector('#gallery').appendChild(image);
+                    });
+                })
+                .catch((error) =>
+                    console.error('Error fetching images:', error),
+                );
+
+            setInterval(() => {
+                if (selectedImage) {
+                    document
+                        .querySelector('#selectedImage')
+                        .setAttribute('src', selectedImage);
+                }
+            }, 1000);
+
+            // document
+            //     .querySelector('.resizeForm')
+            //     .addEventListener('submit', (event) => {
+            //         event.preventDefault();
+
+            //         const params = new URLSearchParams();
+            //         params.append('fileName', selectedImageFileName);
+            //         params.append('width', document.querySelector('#width').value);
+            //         params.append('height', document.querySelector('#height').value);
+            //         params.append('image', selectedImage)
+
+            //         console.log(params.toString())
+
+            //         fetch('http://localhost:3000/resize', {
+            //             method: 'POST',
+            //             headers: {
+            //                 'Content-Type': 'application/x-www-form-urlencoded',
+            //             },
+            //             body: params.toString(),
+            //         }).then((data) => {
+            //             document
+            //                 .querySelector('#selectedImage')
+            //                 .setAttribute('src', data);
+            //             document
+            //                 .querySelector('#selectedImageLink')
+            //                 .setAttribute('href', data);
+            //             console.log(data)
+            //             selectedImage = ''
+            //             selectedImageFileName = ''
+            //         });
+            //     });
+            document.querySelector('.resizeForm').addEventListener('submit', event => {
+                event.preventDefault()
+
+                const requestBody = new URLSearchParams({
+                    'image': selectedImage,
+                    'fileName': selectedImageFileName,
+                    'width': document.querySelector('#width').value,
+                    'height': document.querySelector('#height').value
+                })
+
+                fetch('http://localhost:3000/resize', {
+                    method: 'POST',
+                    body: requestBody
+                })
+                .then((data) => {
+                    selectedImage = ''
+                    selectedImageFileName = ''
+                    document.querySelector('#selectedImage').setAttribute('src', data);
+                    document.querySelector('#selectedImageLink').setAttribute('href', data)
+                    alert(data)
+                    console.log(data)
+                })
+                .catch((err) => {
+                    alert(err)
+                    console.error(err)
+                })
+            })
+        </script>
+    </body>
+</html>
