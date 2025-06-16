@@ -56,7 +56,7 @@ uploadRouter.post(
 );
 
 uploadRouter.get('/', async (req: Request, res: Response) => {
-    res.send(await getFiles());
+    res.json(await getFiles());
 });
 
 export default uploadRouter;

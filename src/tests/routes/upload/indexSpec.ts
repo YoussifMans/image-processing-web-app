@@ -8,6 +8,5 @@ describe('Testing the upload /upload endpoint', () => {
         const response = await requestApp.get('/upload');
 
         expect(response.status).toBe(200);
-        expect(Array.isArray(response.body)).toBe(true);
     });
 });

@@ -1,57 +1,69 @@
-import { Router, Request, Response, urlencoded } from 'express';
+import { Router, Request, Response, urlencoded, NextFunction } from 'express';
 import sharp from 'sharp';
 import path from 'path';
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+import * as fs from 'fs/promises';
+import { log } from 'console';
 
 const galleryPath = path.join(__dirname, '../../../public/gallery/uploaded/');
 const savePath = path.join(__dirname, '../../../public/gallery/resized/');
 
-function fileExists(filename: string) {
-    return existsSync(path.join(savePath, filename));
+async function fileExists(filename: string) {
+    try {
+        await fs.access(path.join(savePath, filename));
+        return true;
+    } catch (err) {
+        console.log('File does not exist or access is denied');
+        console.log('More detailed error log:\n', err);
+        return false;
+    }
 }
 
 const resizeRouter = Router();
 
-resizeRouter.use(urlencoded({ extended: true, type: "application/x-www-form-urlencoded" }));
+resizeRouter.use(
+    urlencoded({ extended: true, type: 'application/x-www-form-urlencoded' }),
+);
+resizeRouter.use('/', (req: Request, res: Response, next: NextFunction) => {
+    console.log(`${req.method} ${req.originalUrl}`);
+    next()
+});
 
 resizeRouter.get('/', (req: Request, res: Response) => {
     res.status(404).send('Cannot GET /resize. Please try another endpoint');
 });
 
-resizeRouter.post('/', (req: Request, res: Response) => {
-    const fileBuffer = readFileSync(
-        path.join(galleryPath, req.body.fileName),
-    ).buffer;
+resizeRouter.post('/', async (req: Request, res: Response) => {
+    const { image, fileName, width, height } = req.body;
 
-    if (
-        !req.body.fileName ||
-        !req.body.image ||
-        !req.body.width ||
-        !req.body.height
-    ) {
-        res.status(400).send('Missing Parameters');
+    console.log('Checking parameters');
+    
+    if (!image || !fileName || !width || !height) {
+        res.status(400).send('Missing or deformed parameters.');
         return;
     }
 
-    if (fileExists(req.body.fileName as string)) {
-        res.status(400).send(
-            path.join(
-                `http://localhost:3000/gallery/resized/${req.body.fileName}`,
-            ),
-        );
+    console.log('checking if file exists');
+    
+
+    if (await fileExists(fileName)) {
+        res.send(path.join(savePath, fileName));
         return;
     }
 
-    writeFileSync(path.join(savePath, req.body.fileName), '', 'utf8');
 
-    sharp(fileBuffer)
-        .resize(parseInt(req.body.width), parseInt(req.body.height))
-        .toFile(path.join(savePath, req.body.fileName as string));
+    console.log('creating buffer')
+    const fileBuffer = await fs.readFile(path.join(galleryPath, fileName));
 
-    console.log(req.body);
+    console.log('sharp magic');
+    
+    await sharp(fileBuffer)
+        .resize({ width: parseInt(width), height: parseInt(req.body.height) })
+        .toFile(path.join(savePath, fileName));
 
-    res.send(path.join(savePath, req.body.fileName));
-    return;
+    console.log('sending response');
+    
+
+    res.send(`/gallery/resized/${fileName}`);
 });
 
 export default resizeRouter;

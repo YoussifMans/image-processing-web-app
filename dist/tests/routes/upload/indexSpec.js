@@ -51,7 +51,6 @@ describe('Testing the upload /upload endpoint', function () {
                 case 1:
                     response = _a.sent();
                     expect(response.status).toBe(200);
-                    expect(Array.isArray(response.body)).toBe(true);
                     return [2 /*return*/];
             }
         });

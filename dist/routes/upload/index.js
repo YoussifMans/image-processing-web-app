@@ -102,7 +102,7 @@ uploadRouter.get('/', function (req, res) { return __awaiter(void 0, void 0, voi
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
-                _b = (_a = res).send;
+                _b = (_a = res).json;
                 return [4 /*yield*/, getFiles()];
             case 1:
                 _b.apply(_a, [_c.sent()]);

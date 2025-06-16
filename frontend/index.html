@@ -144,12 +144,12 @@
             </div>
         </div>
 
-        <script>
+        <script type="module">
             let selectedImage = '';
             let selectedImageFileName = '';
 
             fetch('http://localhost:3000/upload')
-                .then((response) => response.json())
+                .then((data) => data.json())
                 .then((imagesArray) => {
                     imagesArray.forEach((imageUrl) => {
                         const image = document.createElement('img');
@@ -175,64 +175,53 @@
                 }
             }, 1000);
 
-            // document
-            //     .querySelector('.resizeForm')
-            //     .addEventListener('submit', (event) => {
-            //         event.preventDefault();
+            document
+            .querySelector('.resizeForm')
+            .addEventListener('submit', (event) => {
+                event.preventDefault();
 
-            //         const params = new URLSearchParams();
-            //         params.append('fileName', selectedImageFileName);
-            //         params.append('width', document.querySelector('#width').value);
-            //         params.append('height', document.querySelector('#height').value);
-            //         params.append('image', selectedImage)
-
-            //         console.log(params.toString())
-
-            //         fetch('http://localhost:3000/resize', {
-            //             method: 'POST',
-            //             headers: {
-            //                 'Content-Type': 'application/x-www-form-urlencoded',
-            //             },
-            //             body: params.toString(),
-            //         }).then((data) => {
-            //             document
-            //                 .querySelector('#selectedImage')
-            //                 .setAttribute('src', data);
-            //             document
-            //                 .querySelector('#selectedImageLink')
-            //                 .setAttribute('href', data);
-            //             console.log(data)
-            //             selectedImage = ''
-            //             selectedImageFileName = ''
-            //         });
-            //     });
-            document.querySelector('.resizeForm').addEventListener('submit', event => {
-                event.preventDefault()
-
-                const requestBody = new URLSearchParams({
-                    'image': selectedImage,
-                    'fileName': selectedImageFileName,
-                    'width': document.querySelector('#width').value,
-                    'height': document.querySelector('#height').value
-                })
+                console.log('sending request');
+                
 
                 fetch('http://localhost:3000/resize', {
                     method: 'POST',
-                    body: requestBody
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        image: selectedImage,
+                        fileName: selectedImageFileName,
+                        width: parseInt(
+                            document.querySelector('#width').value,
+                        ),
+                        height: parseInt(
+                            document.querySelector('#height').value,
+                        ),
+                    }),
                 })
-                .then((data) => {
-                    selectedImage = ''
-                    selectedImageFileName = ''
-                    document.querySelector('#selectedImage').setAttribute('src', data);
-                    document.querySelector('#selectedImageLink').setAttribute('href', data)
-                    alert(data)
-                    console.log(data)
+                .then((response) => {
+                    console.log('Got response: ', response)
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then((imageUrl) => {
+                    console.log('Got response: ', response)
+                    document
+                        .querySelector('.selectedImage')
+                        .setAttribute('src', imageUrl);
+                    document
+                        .querySelector('.selectedImageLink')
+                        .setAttribute('href', imageUrl);
                 })
                 .catch((err) => {
-                    alert(err)
-                    console.error(err)
-                })
-            })
+                    alert(
+                        'Error! Please check the console for more info.',
+                    );
+                    console.error(err);
+                });
+            });
         </script>
     </body>
 </html>
