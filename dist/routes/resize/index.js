@@ -101,8 +101,9 @@ function fileExists(filename) {
 }
 var resizeRouter = (0, express_1.Router)();
 resizeRouter.use((0, express_1.urlencoded)({ extended: true, type: 'application/x-www-form-urlencoded' }));
-resizeRouter.use(function (req) {
-    return console.log("".concat(req.method, " ").concat(req.originalUrl));
+resizeRouter.use('/', function (req, res, next) {
+    console.log("".concat(req.method, " ").concat(req.originalUrl));
+    next();
 });
 resizeRouter.get('/', function (req, res) {
     res.status(404).send('Cannot GET /resize. Please try another endpoint');
@@ -113,25 +114,30 @@ resizeRouter.post('/', function (req, res) { return __awaiter(void 0, void 0, vo
         switch (_b.label) {
             case 0:
                 _a = req.body, image = _a.image, fileName = _a.fileName, width = _a.width, height = _a.height;
+                console.log('Checking parameters');
                 if (!image || !fileName || !width || !height) {
                     res.status(400).send('Missing or deformed parameters.');
                     return [2 /*return*/];
                 }
+                console.log('checking if file exists');
                 return [4 /*yield*/, fileExists(fileName)];
             case 1:
                 if (_b.sent()) {
                     res.send(path_1.default.join(savePath, fileName));
                     return [2 /*return*/];
                 }
+                console.log('creating buffer');
                 return [4 /*yield*/, fs.readFile(path_1.default.join(galleryPath, fileName))];
             case 2:
                 fileBuffer = _b.sent();
+                console.log('sharp magic');
                 return [4 /*yield*/, (0, sharp_1.default)(fileBuffer)
                         .resize({ width: parseInt(width), height: parseInt(req.body.height) })
                         .toFile(path_1.default.join(savePath, fileName))];
             case 3:
                 _b.sent();
-                res.send(path_1.default.join(savePath, fileName));
+                console.log('sending response');
+                res.send("/gallery/resized/".concat(fileName));
                 return [2 /*return*/];
         }
     });

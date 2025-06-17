@@ -91,12 +91,7 @@
                 <div class="window-body">
                     <fieldset>
                         <legend>Upload Image</legend>
-                        <form
-                            action="http://localhost:3000/upload"
-                            method="post"
-                            enctype="multipart/form-data"
-                            class="uploadForm"
-                        >
+                        <form class="uploadForm">
                             <input type="file" name="image" id="image" />
                             <input type="submit" value="Submit" />
                         </form>
@@ -116,13 +111,11 @@
                 <div class="window-body">
                     <fieldset>
                         <legend>Resize Image</legend>
-                        <a href="" id="selectedImageLink" target="_blank">
-                            <img
-                                src="https://placehold.co/256"
-                                alt="Selected Image"
-                                id="selectedImage"
-                            /><br />
-                        </a>
+                        <img
+                            src="https://placehold.co/256"
+                            alt="Selected Image"
+                            id="selectedImage"
+                        /><br />
                         <form class="resizeForm">
                             <input
                                 type="text"
@@ -148,7 +141,10 @@
             let selectedImage = '';
             let selectedImageFileName = '';
 
-            fetch('http://localhost:3000/upload')
+            async function getImages() {
+                document.querySelector('#gallery').innerHTML = ''
+
+                fetch('http://localhost:3000/upload')
                 .then((data) => data.json())
                 .then((imagesArray) => {
                     imagesArray.forEach((imageUrl) => {
@@ -166,6 +162,7 @@
                 .catch((error) =>
                     console.error('Error fetching images:', error),
                 );
+            }
 
             setInterval(() => {
                 if (selectedImage) {
@@ -176,52 +173,83 @@
             }, 1000);
 
             document
-            .querySelector('.resizeForm')
-            .addEventListener('submit', (event) => {
-                event.preventDefault();
+                .querySelector('.resizeForm')
+                .addEventListener('submit', (event) => {
+                    event.preventDefault();
 
-                console.log('sending request');
-                
+                    console.log('sending request');
 
-                fetch('http://localhost:3000/resize', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: new URLSearchParams({
-                        image: selectedImage,
-                        fileName: selectedImageFileName,
-                        width: parseInt(
-                            document.querySelector('#width').value,
-                        ),
-                        height: parseInt(
-                            document.querySelector('#height').value,
-                        ),
-                    }),
-                })
-                .then((response) => {
-                    console.log('Got response: ', response)
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.text();
-                })
-                .then((imageUrl) => {
-                    console.log('Got response: ', response)
-                    document
-                        .querySelector('.selectedImage')
-                        .setAttribute('src', imageUrl);
-                    document
-                        .querySelector('.selectedImageLink')
-                        .setAttribute('href', imageUrl);
-                })
-                .catch((err) => {
-                    alert(
-                        'Error! Please check the console for more info.',
-                    );
-                    console.error(err);
+                    fetch('http://localhost:3000/resize', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            image: selectedImage,
+                            fileName: selectedImageFileName,
+                            width: parseInt(
+                                document.querySelector('#width').value,
+                            ),
+                            height: parseInt(
+                                document.querySelector('#height').value,
+                            ),
+                        }),
+                    })
+                        .then((response) => {
+                            console.log('Got response: ', response);
+                            if (!response.ok) {
+                                throw new Error(
+                                    `HTTP error! status: ${response.status}`,
+                                );
+                            }
+                            return response.text();
+                        })
+                        .then((imageUrl) => {
+                            console.log('Got response: ', imageUrl);
+                            if (!document.querySelector('#resizedLink')) {
+                                const link = document.createElement('a')
+                                link.setAttribute('href', imageUrl)
+                                link.innerText = 'Click here to get the resized image!'
+                                link.id = 'resizedLink'
+                                link.setAttribute('target', '_blank')
+                                document.querySelector('.resizeForm').append(link)
+                            } else {
+                                document.querySelector('#resizedLink').setAttribute('href', imageUrl)
+                            }
+                        })
+                        .catch((err) => {
+                            alert(
+                                'Error! Please check the console for more info.',
+                            );
+                            console.error(err);
+                        });
                 });
-            });
+
+            document
+                .querySelector('.uploadForm')
+                .addEventListener('submit', async (event) => {
+                    event.preventDefault();
+
+                    console.log('Upload Form');
+
+                    fetch('http://localhost:3000/upload', {
+                        method: 'POST',
+                        body: new FormData(
+                            document.querySelector('.uploadForm'),
+                        ),
+                    })
+                    .then((data) => {
+                        console.log('Got Data:', data)
+                        getImages()
+                        .then(() => console.log('Added Images'))
+                        .catch((err) => console.log('Error getting images!'))
+                    })
+                    .catch((err) => {
+                        console.log('Error: ', err)
+                    })
+                });
+
+                await getImages()
         </script>
     </body>
 </html>

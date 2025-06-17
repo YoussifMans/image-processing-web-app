@@ -24,7 +24,7 @@ resizeRouter.use(
 );
 resizeRouter.use('/', (req: Request, res: Response, next: NextFunction) => {
     console.log(`${req.method} ${req.originalUrl}`);
-    next()
+    next();
 });
 
 resizeRouter.get('/', (req: Request, res: Response) => {
@@ -35,34 +35,31 @@ resizeRouter.post('/', async (req: Request, res: Response) => {
     const { image, fileName, width, height } = req.body;
 
     console.log('Checking parameters');
-    
+
     if (!image || !fileName || !width || !height) {
         res.status(400).send('Missing or deformed parameters.');
         return;
     }
 
     console.log('checking if file exists');
-    
 
     if (await fileExists(fileName)) {
         res.send(path.join(savePath, fileName));
         return;
     }
 
-
-    console.log('creating buffer')
+    console.log('creating buffer');
     const fileBuffer = await fs.readFile(path.join(galleryPath, fileName));
 
     console.log('sharp magic');
-    
+
     await sharp(fileBuffer)
         .resize({ width: parseInt(width), height: parseInt(req.body.height) })
         .toFile(path.join(savePath, fileName));
 
     console.log('sending response');
-    
 
-    res.send(`/gallery/resized/${fileName}`);
+    res.send(`http://localhost:3000/gallery/resized/${fileName}`);
 });
 
 export default resizeRouter;
