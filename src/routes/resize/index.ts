@@ -2,7 +2,6 @@ import { Router, Request, Response, urlencoded, NextFunction } from 'express';
 import sharp from 'sharp';
 import path from 'path';
 import * as fs from 'fs/promises';
-import { log } from 'console';
 
 const galleryPath = path.join(__dirname, '../../../public/gallery/uploaded/');
 const savePath = path.join(__dirname, '../../../public/gallery/resized/');
