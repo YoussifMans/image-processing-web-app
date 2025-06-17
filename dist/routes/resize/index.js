@@ -137,7 +137,7 @@ resizeRouter.post('/', function (req, res) { return __awaiter(void 0, void 0, vo
             case 3:
                 _b.sent();
                 console.log('sending response');
-                res.send("/gallery/resized/".concat(fileName));
+                res.send("http://localhost:3000/gallery/resized/".concat(fileName));
                 return [2 /*return*/];
         }
     });
